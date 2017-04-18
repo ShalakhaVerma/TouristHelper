@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -23,7 +23,7 @@ import com.example.shalakhaverma.touristhelper.R;
 import java.util.List;
 
 import adapters.ViewPagerAdapter;
-import customviews.circleindicator.CirclePageIndicator;
+import customview.CirclePageIndicator;
 import listeners.PlaceDetailListener;
 import managers.PlaceDetailManager;
 import models.PhotosBean;
@@ -32,7 +32,7 @@ import models.Placesearch;
 import utils.Constants;
 
 /**
- * Created by saurabhverma on 16/04/2017.
+ * Created by shalakha on 16/04/2017.
  */
 
 public class PlaceDetailActivity extends FragmentActivity implements View.OnClickListener,
@@ -42,31 +42,33 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
     private TextView mTextVicinity;
     private TextView mTextCall;
     private TextView mTextWebsite;
-    //    private TextView mTextType;
     private TextView mTextRating;
     private TextView mTextOpen;
     private String number, website;
     private ViewPager mPager;
     public ViewPagerAdapter mPagerAdapter;
     private double latitude, longitude;
-
     private FloatingActionButton mFloatingBtn;
-    List<PhotosBean> mPhotosBean;
+    private List<PhotosBean> mPhotosBean;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_detail);
+        // initialize the controller class of the activity
         mPlaceDetailManager = new PlaceDetailManager();
+        // get the  extras from bundle
         Placesearch.ResultsBean mPlaceDetails = (Placesearch.ResultsBean) getIntent().getExtras().getSerializable(Constants.photos_bean_list);
         init();
+        // set PlaceDetailListener onto activity
         mPlaceDetailManager.addPlacesDetailListener(this);
         mPlaceDetailManager.getPlaceDetails(this, mPlaceDetails.getPlace_id());
     }
 
+    /*
+      @desc method to initialize the view variables of the activity
+     */
     private void init() {
-
-
         mTextCall = (TextView) findViewById(R.id.text_call);
         mTextOpen = (TextView) findViewById(R.id.text_open);
         mTextRating = (TextView) findViewById(R.id.text_rating);
@@ -80,6 +82,8 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
         mPager = (ViewPager) findViewById(R.id.pager);
         CirclePageIndicator mIndicator = (CirclePageIndicator) findViewById(R.id.indicator);
         mPager.setOnTouchListener(this);
+
+        //set adapter to the view pager
         if (mPagerAdapter == null) {
             mPagerAdapter = new ViewPagerAdapter(this);
             mPager.setAdapter(mPagerAdapter);
@@ -93,20 +97,28 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.text_call:
+                //Check if Call permissions Available or not
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
 
                     ActivityCompat.requestPermissions(PlaceDetailActivity.this, new String[]{android.Manifest.permission.CALL_PHONE}, 0);
-                }
-                else {
-                    Intent callIntent = new Intent(Intent.ACTION_CALL);
-                    callIntent.setData(Uri.parse("tel:" + number));
+                } else {
+                    try {
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setData(Uri.parse("tel:" + number));
                         startActivity(callIntent);
+                    } catch (ActivityNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case R.id.text_website:
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(website));
-                startActivity(i);
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(website));
+                    startActivity(i);
+                } catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
+                }
                 break;
 
             case R.id.fab_btn:
@@ -123,6 +135,7 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
                 break;
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -143,15 +156,23 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
         }
     }
 
+    /*
+       @desc - Callback method to shows error  when an error occurs while running
+       google placed api.
+       @param String error- Error Message
+      */
     @Override
     public void onError(String error) {
-
+        Snackbar.make(mPager, error, Snackbar.LENGTH_SHORT).show();
     }
 
+    /*
+     @desc - Callback method when a successfull google places detail api result
+     Also data is set on the view items
+     @param PlaceDetails.ResultsBean> results- result data
+    */
     @Override
     public void onSuccess(PlaceDetails.ResultBean results) {
-
-        //        mPlaceDetailManager.addFragment(this,R.id.photos_fragment,mPlaceDetails.getPhotos());
         setCollapsingToolbar(results.getName());
         if (results != null && results.getPhotos() != null) {
             mPhotosBean = results.getPhotos();
@@ -176,18 +197,6 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
         else
             mTextWebsite.setVisibility(View.GONE);
 
-
-//            if (results.getTypes() != null) {
-//                StringBuilder sb = new StringBuilder();
-//                for (int i = 0; i < results.getTypes().size(); i++) {
-//                    if (i == 0)
-//                        sb.append(results.getTypes().get(i));
-//                    else
-//                        sb.append(".").append(results.getTypes().get(i));
-//                }
-//
-//                mTextType.setText(sb.toString());
-//            }
         if (results.getRating() != 0.0)
             mTextRating.setText(getString(R.string.rating) + String.valueOf(results.getRating()));
         else
@@ -205,6 +214,9 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
             findViewById(R.id.layout_open).setVisibility(View.GONE);
     }
 
+    /*
+    @desc - Method to set title on CollapsingToolbar
+     */
     private void setCollapsingToolbar(String name) {
 
         CollapsingToolbarLayout collapsingToolbar =
@@ -213,6 +225,9 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
         collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.white));
     }
 
+    /*
+    @desc - Method to handle touch event on view pager
+     */
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (findViewById(R.id.photos_fragment).getVisibility() == View.GONE) {
@@ -224,6 +239,9 @@ public class PlaceDetailActivity extends FragmentActivity implements View.OnClic
         return false;
     }
 
+    /*
+    @desc - Method to handle back press events
+     */
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {

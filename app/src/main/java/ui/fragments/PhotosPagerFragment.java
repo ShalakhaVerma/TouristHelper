@@ -1,7 +1,6 @@
 package ui.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -13,13 +12,12 @@ import com.example.shalakhaverma.touristhelper.R;
 import java.util.List;
 
 import adapters.ViewPagerAdapter;
-import customviews.circleindicator.CirclePageIndicator;
+import customview.CirclePageIndicator;
 import models.PhotosBean;
-import models.Placesearch;
 import utils.Constants;
 
 /**
- * Created by saurabhverma on 16/04/2017.
+ * Created by shalakhaverma on 16/04/2017.
  */
 
 public class PhotosPagerFragment extends Fragment {
@@ -44,6 +42,7 @@ public class PhotosPagerFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // set adapter to the view pager and set circle indicator to pager
         if (mPagerAdapter == null) {
             mPhotosBeanList = (List<PhotosBean>) getArguments().getSerializable(Constants.photos_bean_list);
             mPagerAdapter = new ViewPagerAdapter(getActivity());

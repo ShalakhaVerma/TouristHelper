@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +16,10 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import models.Placesearch;
+import retrofit.ApiClient;
 
 /**
- * Created by saurabhverma on 12/04/2017.
+ * Created by shalakhaverma on 16/04/2017.
  */
 
 public class NearByPlacesAdapter extends RecyclerView.Adapter<NearByPlacesAdapter.ViewHolder> {
@@ -77,7 +77,6 @@ public class NearByPlacesAdapter extends RecyclerView.Adapter<NearByPlacesAdapte
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        Log.d(TAG, "Element " + position + " set.");
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
@@ -108,10 +107,8 @@ public class NearByPlacesAdapter extends RecyclerView.Adapter<NearByPlacesAdapte
                         nearbyPlacesList.get(position).getPhotos().get(0) != null) {
                     String photoRef = nearbyPlacesList.get(position).getPhotos().get(0).getPhoto_reference();
 
-                    String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200" + "&maxheight=1200" +
+                    String url = ApiClient.BASE_URL + "maps/api/place/photo?maxwidth=1200" + "&maxheight=1200" +
                             "&photoreference=" + photoRef + "&key=" + mContext.getString(R.string.google_maps_key);
-                    Log.w("Image pos ", position + "");
-                    Log.w("Image URL ", position + "     " + url);
                     Picasso.with(mContext).load(url).into(viewHolder.mPhoto);
                 } else
                     viewHolder.mPhoto.setImageDrawable(ContextCompat.getDrawable(mContext, R.mipmap.ic_launcher));
@@ -131,9 +128,9 @@ public class NearByPlacesAdapter extends RecyclerView.Adapter<NearByPlacesAdapte
             return 0;
     }
 
+    // Return the item from dataset at this position
     public Placesearch.ResultsBean getItem(int position) {
         return nearbyPlacesList.get(position);
-
     }
 
 

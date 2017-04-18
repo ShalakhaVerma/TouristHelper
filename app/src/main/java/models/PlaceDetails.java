@@ -3,7 +3,7 @@ package models;
 import java.util.List;
 
 /**
- * Created by saurabhverma on 16/04/2017.
+ * Created by shalakhaverma on 16/04/2017.
  */
 
 public class PlaceDetails {

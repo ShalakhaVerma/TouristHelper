@@ -6,7 +6,9 @@ package utils;
 
 public class Constants {
 
-    public static String photos_bean_list = "photos_bean_list-3mLs0";
+    public static String photos_bean_list = "photos_bean_list";
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static int PROXIMITY_RADIUS = 10000;
+    public static int TIME_INTERVAL_MILLISECONDS = 1000;
+
 }

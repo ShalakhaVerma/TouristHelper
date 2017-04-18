@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by saurabhverma on 17/04/2017.
+ * Created by shalakhaverma on 17/04/2017.
  */
 
 public class PhotosBean implements Serializable {

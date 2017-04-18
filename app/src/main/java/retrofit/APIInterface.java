@@ -7,13 +7,13 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
- * Created by saurabhverma on 8/04/2017.
+ * Created by shalakhaverma on 16/04/2017.
  */
 
 public interface APIInterface {
 
     @GET("/maps/api/place/nearbysearch/json")
-    Call<Placesearch> getPlacesSearch(@Query("location") String location, @Query("rankby") String radius,
+    Call<Placesearch> getPlacesSearch(@Query("location") String location, @Query("rankby") String rankby,
                                       @Query("type") String type, @Query("sensor") boolean sensor,
                                       @Query("key") String key);
 

@@ -5,17 +5,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.shalakhaverma.touristhelper.R;
@@ -45,7 +41,7 @@ import utils.AppUtil;
 import utils.Constants;
 
 /**
- * Created by saurabhverma on 12/04/2017.
+ * Created by shalakha on 16/04/2017.
  */
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -59,50 +55,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
-//        private double latitude;
-//    private double longitude;
     private MainActivityManager mTouristHelperManager;
-    double latitude = -37.89133;
-    double longitude = 145.07046;
+//    double latitude = -37.89133;
+//    double longitude = 145.07046;
     private NearByPlacesAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    List<Placesearch.ResultsBean> nearbyPlacesList;
-    ArrayList<LatLng> mMarkerPoints;
+    private List<Placesearch.ResultsBean> nearbyPlacesList;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+//         initialize the controller class of the activity
         mTouristHelperManager = new MainActivityManager();
+        // set PlaceSearchListener onto activity
         mTouristHelperManager.addPlacesSearchListener(this);
 
+        //Check if Google Location permission  Available or not
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             AppUtil.checkLocationPermission(this);
         }
 
         //Check if Google Play Services Available or not
         if (!AppUtil.CheckGooglePlayServices(this)) {
-            Log.d("onCreate", "Finishing test case since Google Play Services are not available");
             finish();
         } else {
-            Log.d("onCreate", "Google Play Services available.");
+//            Log.d("onCreate", "Google Play Services available.");
         }
 
         init();
 
-
-        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
-
-
-//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
 
@@ -110,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -124,13 +109,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-        mMarkerPoints = new ArrayList<LatLng>();
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMarkerPoints.add(0, latLng);
-        mTouristHelperManager.getPlaceSearch(this, latitude, longitude, "point_of_interest");
+
     }
 
-
+    /*
+      @desc method to build Google Api client
+     */
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -140,27 +124,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mGoogleApiClient.connect();
     }
 
+    /*
+      @desc method to initialize the view variables of the activity
+     */
     private void init() {
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.main_collapsing);
-        collapsingToolbar.setTitle(getString(R.string.app_name));
-        collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.trans));
+        setCollapsingToolbar();
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mAdapter = new NearByPlacesAdapter(nearbyPlacesList, this);
         mRecyclerView.setAdapter(mAdapter);
-
-
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(llm);
         mRecyclerView.addOnItemTouchListener(mTouristHelperManager.addRecycleViewItemTouchListener(this, mRecyclerView, mAdapter));
     }
 
+    /*
+   @desc - Method to set title on CollapsingToolbar
+    */
+    private void setCollapsingToolbar() {
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.main_collapsing);
+        collapsingToolbar.setTitle(getString(R.string.app_name));
+        collapsingToolbar.setExpandedTitleColor(ContextCompat.getColor(this, R.color.trans));
+    }
+
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
+    public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(Constants.TIME_INTERVAL_MILLISECONDS);
+        mLocationRequest.setFastestInterval(Constants.TIME_INTERVAL_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -177,49 +167,65 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("onLocationChanged", "entered");
+       Location mLastLocation = location;
+        try {
+            if (mCurrLocationMarker != null) {
+                mCurrLocationMarker.remove();
+            }
 
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
+            //Place current location marker
+            double latitude = mLastLocation.getLatitude();
+            double longitude = mLastLocation.getLongitude();
+
+
+            // call to google places search api to find all places of interest
+            mTouristHelperManager.getPlaceSearch(this, latitude, longitude, "point_of_interest");
+
+
+            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            markerOptions.title("Current Position");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+            //move map camera
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+            //stop location updates
+            if (mGoogleApiClient != null) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            }
         }
-
-        //Place current location marker
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        Log.d("onLocationChanged", String.format("latitude:%.3f longitude:%.3f", latitude, longitude));
-
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            Log.d("onLocationChanged", "Removing Location Updates");
+        catch (Exception e){
+            e.printStackTrace();
         }
-        Log.d("onLocationChanged", "Exit");
     }
 
+    /*
+      @desc - Callback method to shows error  when an error occurs while running
+      google placed api.
+      @param String error- Error Message
+     */
     @Override
     public void onError(String error) {
-
+        Snackbar.make(mRecyclerView, error, Snackbar.LENGTH_SHORT).show();
     }
 
+    /*
+     @desc - Callback method when a successfull google places search api result
+     @param Placesearch.ResultsBean> results- result data
+    */
     @Override
     public void onSuccess(List<Placesearch.ResultsBean> results) {
+        //if the list not empty clears the old data if any
         if (nearbyPlacesList != null)
             nearbyPlacesList.clear();
 
@@ -228,24 +234,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mAdapter.notifyDataSetChanged();
     }
 
-
+    /*
+            @desc - Method to draw routes between all markers
+            @param - ArrayList<LatLng> points - List of  LatLng of the two coordinates
+           */
     @Override
-    public void setMarkers(MarkerOptions markerOptions, LatLng latLng, ArrayList<LatLng> points) {
+    public void drawRoute(ArrayList<LatLng> points) {
+        PolylineOptions lineOptions = new PolylineOptions();
+        lineOptions.addAll(points);
+        lineOptions.width(20);
+        lineOptions.color(Color.BLUE);
+
+        // Drawing polyline in the Google Map for the i-th route
+        if (lineOptions != null) {
+            mMap.addPolyline(lineOptions);
+        }
+    }
+
+    /*
+             @desc - Method to set markers on google maps. Also draw routes between all markers
+             @param MarkerOptions markerOptions
+             @param LatLng latLng - Lat Lng of the marked position
+            */
+    @Override
+    public void setMarkers(MarkerOptions markerOptions, LatLng latLng) {
         if (mMap != null) {
             mMap.addMarker(markerOptions);
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             //move map camera
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-            PolylineOptions lineOptions = new PolylineOptions();
-            lineOptions.addAll(points);
-            lineOptions.width(20);
-            lineOptions.color(Color.BLUE);
 
-            // Drawing polyline in the Google Map for the i-th route
-            if (lineOptions != null) {
-                mMap.addPolyline(lineOptions);
-            }
         }
     }
 

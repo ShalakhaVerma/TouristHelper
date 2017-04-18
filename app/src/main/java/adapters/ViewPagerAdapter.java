@@ -18,14 +18,14 @@ import java.util.List;
 import models.PhotosBean;
 
 /**
- * Created by saurabhverma on 16/04/2017.
+ * Created by shalakhaverma on 16/04/2017.
  */
 
 public class ViewPagerAdapter extends PagerAdapter {
 
-    Context mContext;
-    LayoutInflater mLayoutInflater;
-    List<PhotosBean> mResources;
+    private Context mContext;
+    private LayoutInflater mLayoutInflater;
+    private List<PhotosBean> mResources;
 
 
     public ViewPagerAdapter(Context context) {
