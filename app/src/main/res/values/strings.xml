@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Tourist Helper</string>
+    <string name="title_activity_maps">Tourist Helper</string>
+    <string name="error">Error</string>
+    <string name="open">OPEN</string>
+    <string name="closed">CLOSED</string>
+    <string name="rating">Rating :</string>
+    <string name="website">Website</string>
+    <string name="call">Call</string>
+</resources>

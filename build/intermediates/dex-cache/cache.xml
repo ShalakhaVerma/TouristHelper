@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/saurabhverma/AndroidStudioProjects/TouristHelper/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.1"
+        sha1="510aa6efc159983dfbffa676a0dae37568c0a46f">
+        <dex dex="/Users/saurabhverma/AndroidStudioProjects/TouristHelper/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_c3199be1f7a526b72ab41832a1c95dd988a290aa/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/saurabhverma/AndroidStudioProjects/TouristHelper/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.1"
+        sha1="c563066677fd3ed664ff680e7abfcd09ff379395">
+        <dex dex="/Users/saurabhverma/AndroidStudioProjects/TouristHelper/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_a8d2e84dfc0e995ce2cb1ca74beecd226816de35/classes.dex" />
+    </item>
+
+</items>
